@@ -147,16 +147,28 @@ const ChartBuilderPage = () => {
               </aside>
 
               {/* Chart preview */}
-              <ChartPreview
-                data={data}
-                chartType={chartType}
-                mapping={mapping}
-                themeIndex={themeIndex}
-                title={title}
-                settings={settings}
-                annotations={annotations}
-                onAnnotationsChange={setAnnotations}
-              />
+              <div className="space-y-3">
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleAddToDashboard}
+                    size="sm"
+                    className="gap-2 text-xs"
+                  >
+                    <LayoutDashboard className="h-3.5 w-3.5" />
+                    Add to Dashboard
+                  </Button>
+                </div>
+                <ChartPreview
+                  data={data}
+                  chartType={chartType}
+                  mapping={mapping}
+                  themeIndex={themeIndex}
+                  title={title}
+                  settings={settings}
+                  annotations={annotations}
+                  onAnnotationsChange={setAnnotations}
+                />
+              </div>
             </div>
           </>
         )}
