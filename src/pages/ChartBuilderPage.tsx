@@ -37,6 +37,31 @@ const ChartBuilderPage = () => {
   const [suggestions, setSuggestions] = useState<ChartSuggestion[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
 
+  // Load project from URL param
+  useEffect(() => {
+    const pid = searchParams.get("project");
+    if (!pid || !user) return;
+    (async () => {
+      const { data: proj, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", pid)
+        .single();
+      if (error || !proj) return;
+      setProjectId(proj.id);
+      const d = proj.data as any;
+      if (d.parsedData) {
+        setData(d.parsedData);
+        if (d.chartType) setChartType(d.chartType);
+        if (d.mapping) setMapping(d.mapping);
+        if (d.themeIndex != null) setThemeIndex(d.themeIndex);
+        if (d.title) setTitle(d.title);
+        if (d.settings) setSettings(d.settings);
+        if (d.annotations) setAnnotations(d.annotations);
+      }
+    })();
+  }, [searchParams, user]);
+
   const columns = useMemo(() => (data ? getColumnInfos(data) : []), [data]);
 
   const handleDataParsed = (parsed: ParsedData) => {
