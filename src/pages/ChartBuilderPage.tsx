@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,9 @@ import AxisMapper, { type AxisMapping } from "@/components/AxisMapper";
 import ColorThemePicker from "@/components/ColorThemePicker";
 import ChartPreview, { type Annotation } from "@/components/ChartPreview";
 import ChartSettings, { DEFAULT_CHART_SETTINGS, type ChartSettingsState } from "@/components/ChartSettings";
+import AISuggestPanel from "@/components/AISuggestPanel";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
+import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
 
 const ChartBuilderPage = () => {
   const [data, setData] = useState<ParsedData | null>(null);
@@ -20,12 +22,15 @@ const ChartBuilderPage = () => {
   const [title, setTitle] = useState("");
   const [settings, setSettings] = useState<ChartSettingsState>(DEFAULT_CHART_SETTINGS);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [suggestions, setSuggestions] = useState<ChartSuggestion[]>([]);
+  const [suggestLoading, setSuggestLoading] = useState(false);
 
   const columns = useMemo(() => (data ? getColumnInfos(data) : []), [data]);
 
   const handleDataParsed = (parsed: ParsedData) => {
     setData(parsed);
     setAnnotations([]);
+    setSuggestions([]);
     const infos = getColumnInfos(parsed);
     const textCol = infos.find((c) => c.type === "text" || c.type === "date");
     const numCol = infos.find((c) => c.type === "number");
@@ -35,6 +40,22 @@ const ChartBuilderPage = () => {
       group: "__none__",
     });
   };
+
+  const handleGenerateSuggestions = useCallback(() => {
+    if (!data) return;
+    setSuggestLoading(true);
+    // Simulate brief delay for UX feel
+    setTimeout(() => {
+      const result = suggestCharts(data, columns);
+      setSuggestions(result);
+      setSuggestLoading(false);
+    }, 600);
+  }, [data, columns]);
+
+  const handleApplySuggestion = useCallback((s: ChartSuggestion) => {
+    setChartType(s.chartType);
+    setMapping(s.mapping);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background font-body">
@@ -83,6 +104,12 @@ const ChartBuilderPage = () => {
                 <ChartTypeSelector value={chartType} onChange={setChartType} />
                 <AxisMapper columns={columns} mapping={mapping} onChange={setMapping} />
                 <ColorThemePicker value={themeIndex} onChange={setThemeIndex} />
+                <AISuggestPanel
+                  suggestions={suggestions}
+                  onApply={handleApplySuggestion}
+                  onGenerate={handleGenerateSuggestions}
+                  loading={suggestLoading}
+                />
                 <ChartSettings settings={settings} onChange={setSettings} />
               </aside>
 
