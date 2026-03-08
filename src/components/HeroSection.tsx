@@ -27,14 +27,16 @@ const HeroSection = () => {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center animate-fade-up" style={{ animationDelay: "0.3s" }}>
-          <Link to="/upload">
+          <Link to="/chart">
             <Button size="lg" className="font-display text-base px-8">
-              Get Started Free
+              Build a Chart
             </Button>
           </Link>
-          <Button size="lg" variant="outline" className="font-display text-base px-8">
-            View Gallery
-          </Button>
+          <Link to="/upload">
+            <Button size="lg" variant="outline" className="font-display text-base px-8">
+              Upload & Preview
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
