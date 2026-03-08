@@ -22,7 +22,11 @@ import { supabase } from "@/integrations/supabase/client";
 const ChartBuilderPage = () => {
   const navigate = useNavigate();
   const { addPanel, dashboard } = useDashboard();
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const chartRef = useRef<HTMLDivElement>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [data, setData] = useState<ParsedData | null>(null);
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [mapping, setMapping] = useState<AxisMapping>({ x: "", y: "", group: "__none__" });
