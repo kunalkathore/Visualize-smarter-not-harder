@@ -90,6 +90,16 @@ const ChartBuilderPage = () => {
             </Button>
           </Link>
           <h1 className="font-display text-lg font-bold text-foreground">Chart Builder</h1>
+          <div className="ml-auto flex items-center gap-2">
+            {dashboard.panels.length > 0 && (
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2 text-xs font-display">
+                  <LayoutDashboard className="h-3.5 w-3.5" />
+                  Dashboard ({dashboard.panels.length})
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
