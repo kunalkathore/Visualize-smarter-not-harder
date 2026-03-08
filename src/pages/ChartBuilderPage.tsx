@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback, useRef } from "react";
-import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { ArrowLeft, LayoutDashboard, Save, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import FileUploadZone from "@/components/FileUploadZone";
 import DatasetSummaryBar from "@/components/DatasetSummaryBar";
@@ -16,6 +16,8 @@ import ExportMenu from "@/components/ExportMenu";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
 import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
 import { useDashboard } from "@/contexts/DashboardContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const ChartBuilderPage = () => {
   const navigate = useNavigate();
