@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import FileUploadZone from "@/components/FileUploadZone";
 import DatasetSummaryBar from "@/components/DatasetSummaryBar";
 import ChartTypeSelector, { type ChartType } from "@/components/ChartTypeSelector";
@@ -13,8 +14,11 @@ import ChartSettings, { DEFAULT_CHART_SETTINGS, type ChartSettingsState } from "
 import AISuggestPanel from "@/components/AISuggestPanel";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
 import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
+import { useDashboard } from "@/contexts/DashboardContext";
 
 const ChartBuilderPage = () => {
+  const navigate = useNavigate();
+  const { addPanel, dashboard } = useDashboard();
   const [data, setData] = useState<ParsedData | null>(null);
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [mapping, setMapping] = useState<AxisMapping>({ x: "", y: "", group: "__none__" });
@@ -57,6 +61,25 @@ const ChartBuilderPage = () => {
     setMapping(s.mapping);
   }, []);
 
+  const handleAddToDashboard = useCallback(() => {
+    if (!data) return;
+    addPanel({
+      title: title || `${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`,
+      chartType,
+      mapping,
+      themeIndex,
+      settings,
+      annotations,
+      data,
+    });
+    toast.success("Chart added to dashboard!", {
+      action: {
+        label: "View Dashboard",
+        onClick: () => navigate("/dashboard"),
+      },
+    });
+  }, [data, title, chartType, mapping, themeIndex, settings, annotations, addPanel, navigate]);
+
   return (
     <div className="min-h-screen bg-background font-body">
       <header className="border-b border-border bg-card">
@@ -67,6 +90,16 @@ const ChartBuilderPage = () => {
             </Button>
           </Link>
           <h1 className="font-display text-lg font-bold text-foreground">Chart Builder</h1>
+          <div className="ml-auto flex items-center gap-2">
+            {dashboard.panels.length > 0 && (
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2 text-xs font-display">
+                  <LayoutDashboard className="h-3.5 w-3.5" />
+                  Dashboard ({dashboard.panels.length})
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
@@ -114,16 +147,28 @@ const ChartBuilderPage = () => {
               </aside>
 
               {/* Chart preview */}
-              <ChartPreview
-                data={data}
-                chartType={chartType}
-                mapping={mapping}
-                themeIndex={themeIndex}
-                title={title}
-                settings={settings}
-                annotations={annotations}
-                onAnnotationsChange={setAnnotations}
-              />
+              <div className="space-y-3">
+                <div className="flex justify-end">
+                  <Button
+                    onClick={handleAddToDashboard}
+                    size="sm"
+                    className="gap-2 text-xs"
+                  >
+                    <LayoutDashboard className="h-3.5 w-3.5" />
+                    Add to Dashboard
+                  </Button>
+                </div>
+                <ChartPreview
+                  data={data}
+                  chartType={chartType}
+                  mapping={mapping}
+                  themeIndex={themeIndex}
+                  title={title}
+                  settings={settings}
+                  annotations={annotations}
+                  onAnnotationsChange={setAnnotations}
+                />
+              </div>
             </div>
           </>
         )}
