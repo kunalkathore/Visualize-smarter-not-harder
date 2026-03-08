@@ -150,7 +150,8 @@ const ChartBuilderPage = () => {
 
               {/* Chart preview */}
               <div className="space-y-3">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <ExportMenu chartRef={chartRef} chartTitle={title || "chart"} />
                   <Button
                     onClick={handleAddToDashboard}
                     size="sm"
@@ -161,6 +162,7 @@ const ChartBuilderPage = () => {
                   </Button>
                 </div>
                 <ChartPreview
+                  ref={chartRef}
                   data={data}
                   chartType={chartType}
                   mapping={mapping}
