@@ -22,6 +22,8 @@ const ChartBuilderPage = () => {
   const [title, setTitle] = useState("");
   const [settings, setSettings] = useState<ChartSettingsState>(DEFAULT_CHART_SETTINGS);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [suggestions, setSuggestions] = useState<ChartSuggestion[]>([]);
+  const [suggestLoading, setSuggestLoading] = useState(false);
 
   const columns = useMemo(() => (data ? getColumnInfos(data) : []), [data]);
 
