@@ -113,6 +113,57 @@ const ChartBuilderPage = () => {
     });
   }, [data, title, chartType, mapping, themeIndex, settings, annotations, addPanel, navigate]);
 
+  const handleSaveProject = useCallback(async () => {
+    if (!data || !user) {
+      if (!user) {
+        toast.error("Sign in to save projects", {
+          action: { label: "Sign In", onClick: () => navigate("/auth") },
+        });
+      }
+      return;
+    }
+    setSaving(true);
+    const projectData = {
+      parsedData: data,
+      chartType,
+      mapping,
+      themeIndex,
+      title,
+      settings,
+      annotations,
+    };
+
+    if (projectId) {
+      const { error } = await supabase
+        .from("projects")
+        .update({
+          name: title || "Untitled Project",
+          data: projectData as any,
+          chart_count: dashboard.panels.length + 1,
+        })
+        .eq("id", projectId);
+      if (error) toast.error("Failed to save");
+      else toast.success("Project saved!");
+    } else {
+      const { data: newProj, error } = await supabase
+        .from("projects")
+        .insert({
+          user_id: user.id,
+          name: title || "Untitled Project",
+          data: projectData as any,
+          chart_count: 1,
+        })
+        .select("id")
+        .single();
+      if (error) toast.error("Failed to save");
+      else {
+        setProjectId(newProj.id);
+        toast.success("Project saved!");
+      }
+    }
+    setSaving(false);
+  }, [data, user, projectId, chartType, mapping, themeIndex, title, settings, annotations, dashboard.panels.length, navigate]);
+
   return (
     <div className="min-h-screen bg-background font-body">
       <header className="border-b border-border bg-card">
