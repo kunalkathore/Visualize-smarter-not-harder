@@ -8,7 +8,8 @@ import DatasetSummaryBar from "@/components/DatasetSummaryBar";
 import ChartTypeSelector, { type ChartType } from "@/components/ChartTypeSelector";
 import AxisMapper, { type AxisMapping } from "@/components/AxisMapper";
 import ColorThemePicker from "@/components/ColorThemePicker";
-import ChartPreview from "@/components/ChartPreview";
+import ChartPreview, { type Annotation } from "@/components/ChartPreview";
+import ChartSettings, { DEFAULT_CHART_SETTINGS, type ChartSettingsState } from "@/components/ChartSettings";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
 
 const ChartBuilderPage = () => {
@@ -17,12 +18,14 @@ const ChartBuilderPage = () => {
   const [mapping, setMapping] = useState<AxisMapping>({ x: "", y: "", group: "__none__" });
   const [themeIndex, setThemeIndex] = useState(0);
   const [title, setTitle] = useState("");
+  const [settings, setSettings] = useState<ChartSettingsState>(DEFAULT_CHART_SETTINGS);
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
 
   const columns = useMemo(() => (data ? getColumnInfos(data) : []), [data]);
 
   const handleDataParsed = (parsed: ParsedData) => {
     setData(parsed);
-    // Auto-select first text column for X, first number column for Y
+    setAnnotations([]);
     const infos = getColumnInfos(parsed);
     const textCol = infos.find((c) => c.type === "text" || c.type === "date");
     const numCol = infos.find((c) => c.type === "number");
@@ -55,13 +58,13 @@ const ChartBuilderPage = () => {
 
             <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
               {/* Sidebar controls */}
-              <aside className="space-y-6">
+              <aside className="space-y-6 max-h-[calc(100vh-160px)] overflow-y-auto pr-1">
                 <div className="space-y-2">
                   <Button
                     variant="outline"
                     size="sm"
                     className="w-full text-xs"
-                    onClick={() => setData(null)}
+                    onClick={() => { setData(null); setAnnotations([]); }}
                   >
                     Upload different file
                   </Button>
@@ -80,6 +83,7 @@ const ChartBuilderPage = () => {
                 <ChartTypeSelector value={chartType} onChange={setChartType} />
                 <AxisMapper columns={columns} mapping={mapping} onChange={setMapping} />
                 <ColorThemePicker value={themeIndex} onChange={setThemeIndex} />
+                <ChartSettings settings={settings} onChange={setSettings} />
               </aside>
 
               {/* Chart preview */}
@@ -89,6 +93,9 @@ const ChartBuilderPage = () => {
                 mapping={mapping}
                 themeIndex={themeIndex}
                 title={title}
+                settings={settings}
+                annotations={annotations}
+                onAnnotationsChange={setAnnotations}
               />
             </div>
           </>
