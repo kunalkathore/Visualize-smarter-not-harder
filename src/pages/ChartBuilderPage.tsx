@@ -61,6 +61,25 @@ const ChartBuilderPage = () => {
     setMapping(s.mapping);
   }, []);
 
+  const handleAddToDashboard = useCallback(() => {
+    if (!data) return;
+    addPanel({
+      title: title || `${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Chart`,
+      chartType,
+      mapping,
+      themeIndex,
+      settings,
+      annotations,
+      data,
+    });
+    toast.success("Chart added to dashboard!", {
+      action: {
+        label: "View Dashboard",
+        onClick: () => navigate("/dashboard"),
+      },
+    });
+  }, [data, title, chartType, mapping, themeIndex, settings, annotations, addPanel, navigate]);
+
   return (
     <div className="min-h-screen bg-background font-body">
       <header className="border-b border-border bg-card">
