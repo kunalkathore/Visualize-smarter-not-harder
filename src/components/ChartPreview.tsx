@@ -34,12 +34,12 @@ interface Props {
 
 const SIZE_HEIGHTS = [280, 400, 540, 700];
 
-const ChartPreview = ({
+const ChartPreview = forwardRef<HTMLDivElement, Props>(({
   data, chartType, mapping, themeIndex, title,
   settings = DEFAULT_CHART_SETTINGS,
   annotations = [],
   onAnnotationsChange,
-}: Props) => {
+}, ref) => {
   const colors = COLOR_THEMES[themeIndex].colors;
   const [pendingAnnotation, setPendingAnnotation] = useState<{ x: string | number; y: number } | null>(null);
   const [annotationText, setAnnotationText] = useState("");
