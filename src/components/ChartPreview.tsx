@@ -411,6 +411,8 @@ const ChartPreview = forwardRef<HTMLDivElement, Props>(({
       )}
     </div>
   );
-};
+});
+
+ChartPreview.displayName = "ChartPreview";
 
 export default ChartPreview;
