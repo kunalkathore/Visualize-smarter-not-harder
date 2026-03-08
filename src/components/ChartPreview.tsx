@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, forwardRef } from "react";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   ScatterChart, Scatter, AreaChart, Area, XAxis, YAxis,
@@ -34,12 +34,12 @@ interface Props {
 
 const SIZE_HEIGHTS = [280, 400, 540, 700];
 
-const ChartPreview = ({
+const ChartPreview = forwardRef<HTMLDivElement, Props>(({
   data, chartType, mapping, themeIndex, title,
   settings = DEFAULT_CHART_SETTINGS,
   annotations = [],
   onAnnotationsChange,
-}: Props) => {
+}, ref) => {
   const colors = COLOR_THEMES[themeIndex].colors;
   const [pendingAnnotation, setPendingAnnotation] = useState<{ x: string | number; y: number } | null>(null);
   const [annotationText, setAnnotationText] = useState("");
@@ -367,7 +367,7 @@ const ChartPreview = ({
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
+    <div ref={ref} className="rounded-xl border border-border bg-card p-6">
       {title && (
         <h2 className="mb-4 text-center font-display text-lg font-bold text-foreground">{title}</h2>
       )}
@@ -411,6 +411,8 @@ const ChartPreview = ({
       )}
     </div>
   );
-};
+});
+
+ChartPreview.displayName = "ChartPreview";
 
 export default ChartPreview;

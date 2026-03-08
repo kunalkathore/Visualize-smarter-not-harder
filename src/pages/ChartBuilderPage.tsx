@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import ColorThemePicker from "@/components/ColorThemePicker";
 import ChartPreview, { type Annotation } from "@/components/ChartPreview";
 import ChartSettings, { DEFAULT_CHART_SETTINGS, type ChartSettingsState } from "@/components/ChartSettings";
 import AISuggestPanel from "@/components/AISuggestPanel";
+import ExportMenu from "@/components/ExportMenu";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
 import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
 import { useDashboard } from "@/contexts/DashboardContext";
@@ -19,6 +20,7 @@ import { useDashboard } from "@/contexts/DashboardContext";
 const ChartBuilderPage = () => {
   const navigate = useNavigate();
   const { addPanel, dashboard } = useDashboard();
+  const chartRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<ParsedData | null>(null);
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [mapping, setMapping] = useState<AxisMapping>({ x: "", y: "", group: "__none__" });
@@ -148,7 +150,8 @@ const ChartBuilderPage = () => {
 
               {/* Chart preview */}
               <div className="space-y-3">
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-2">
+                  <ExportMenu chartRef={chartRef} chartTitle={title || "chart"} />
                   <Button
                     onClick={handleAddToDashboard}
                     size="sm"
@@ -159,6 +162,7 @@ const ChartBuilderPage = () => {
                   </Button>
                 </div>
                 <ChartPreview
+                  ref={chartRef}
                   data={data}
                   chartType={chartType}
                   mapping={mapping}
