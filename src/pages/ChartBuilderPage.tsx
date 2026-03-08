@@ -1,0 +1,101 @@
+import { useState, useMemo } from "react";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
+import FileUploadZone from "@/components/FileUploadZone";
+import DatasetSummaryBar from "@/components/DatasetSummaryBar";
+import ChartTypeSelector, { type ChartType } from "@/components/ChartTypeSelector";
+import AxisMapper, { type AxisMapping } from "@/components/AxisMapper";
+import ColorThemePicker from "@/components/ColorThemePicker";
+import ChartPreview from "@/components/ChartPreview";
+import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
+
+const ChartBuilderPage = () => {
+  const [data, setData] = useState<ParsedData | null>(null);
+  const [chartType, setChartType] = useState<ChartType>("bar");
+  const [mapping, setMapping] = useState<AxisMapping>({ x: "", y: "", group: "__none__" });
+  const [themeIndex, setThemeIndex] = useState(0);
+  const [title, setTitle] = useState("");
+
+  const columns = useMemo(() => (data ? getColumnInfos(data) : []), [data]);
+
+  const handleDataParsed = (parsed: ParsedData) => {
+    setData(parsed);
+    // Auto-select first text column for X, first number column for Y
+    const infos = getColumnInfos(parsed);
+    const textCol = infos.find((c) => c.type === "text" || c.type === "date");
+    const numCol = infos.find((c) => c.type === "number");
+    setMapping({
+      x: textCol?.name ?? infos[0]?.name ?? "",
+      y: numCol?.name ?? infos[1]?.name ?? "",
+      group: "__none__",
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-background font-body">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
+          <Link to="/">
+            <Button variant="ghost" size="sm" className="gap-2 font-display">
+              <ArrowLeft className="h-4 w-4" /> Home
+            </Button>
+          </Link>
+          <h1 className="font-display text-lg font-bold text-foreground">Chart Builder</h1>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-4 py-8 space-y-8">
+        {!data && <FileUploadZone onDataParsed={handleDataParsed} />}
+
+        {data && (
+          <>
+            <DatasetSummaryBar data={data} />
+
+            <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+              {/* Sidebar controls */}
+              <aside className="space-y-6">
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs"
+                    onClick={() => setData(null)}
+                  >
+                    Upload different file
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="font-display text-sm font-semibold text-foreground">Chart Title</h3>
+                  <Input
+                    placeholder="Enter chart title…"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="h-9 text-sm"
+                  />
+                </div>
+
+                <ChartTypeSelector value={chartType} onChange={setChartType} />
+                <AxisMapper columns={columns} mapping={mapping} onChange={setMapping} />
+                <ColorThemePicker value={themeIndex} onChange={setThemeIndex} />
+              </aside>
+
+              {/* Chart preview */}
+              <ChartPreview
+                data={data}
+                chartType={chartType}
+                mapping={mapping}
+                themeIndex={themeIndex}
+                title={title}
+              />
+            </div>
+          </>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default ChartBuilderPage;
