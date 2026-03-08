@@ -30,6 +30,7 @@ const ChartBuilderPage = () => {
   const handleDataParsed = (parsed: ParsedData) => {
     setData(parsed);
     setAnnotations([]);
+    setSuggestions([]);
     const infos = getColumnInfos(parsed);
     const textCol = infos.find((c) => c.type === "text" || c.type === "date");
     const numCol = infos.find((c) => c.type === "number");
@@ -39,6 +40,22 @@ const ChartBuilderPage = () => {
       group: "__none__",
     });
   };
+
+  const handleGenerateSuggestions = useCallback(() => {
+    if (!data) return;
+    setSuggestLoading(true);
+    // Simulate brief delay for UX feel
+    setTimeout(() => {
+      const result = suggestCharts(data, columns);
+      setSuggestions(result);
+      setSuggestLoading(false);
+    }, 600);
+  }, [data, columns]);
+
+  const handleApplySuggestion = useCallback((s: ChartSuggestion) => {
+    setChartType(s.chartType);
+    setMapping(s.mapping);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background font-body">
