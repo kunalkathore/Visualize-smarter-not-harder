@@ -104,6 +104,12 @@ const ChartBuilderPage = () => {
                 <ChartTypeSelector value={chartType} onChange={setChartType} />
                 <AxisMapper columns={columns} mapping={mapping} onChange={setMapping} />
                 <ColorThemePicker value={themeIndex} onChange={setThemeIndex} />
+                <AISuggestPanel
+                  suggestions={suggestions}
+                  onApply={handleApplySuggestion}
+                  onGenerate={handleGenerateSuggestions}
+                  loading={suggestLoading}
+                />
                 <ChartSettings settings={settings} onChange={setSettings} />
               </aside>
 
