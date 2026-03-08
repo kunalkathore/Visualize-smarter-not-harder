@@ -27,9 +27,11 @@ const HeroSection = () => {
         </p>
 
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center animate-fade-up" style={{ animationDelay: "0.3s" }}>
-          <Button size="lg" className="font-display text-base px-8">
-            Get Started Free
-          </Button>
+          <Link to="/upload">
+            <Button size="lg" className="font-display text-base px-8">
+              Get Started Free
+            </Button>
+          </Link>
           <Button size="lg" variant="outline" className="font-display text-base px-8">
             View Gallery
           </Button>
