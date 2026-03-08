@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import FileUploadZone from "@/components/FileUploadZone";
 import DatasetSummaryBar from "@/components/DatasetSummaryBar";
 import ChartTypeSelector, { type ChartType } from "@/components/ChartTypeSelector";
@@ -13,6 +14,7 @@ import ChartSettings, { DEFAULT_CHART_SETTINGS, type ChartSettingsState } from "
 import AISuggestPanel from "@/components/AISuggestPanel";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
 import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
+import { useDashboard } from "@/contexts/DashboardContext";
 
 const ChartBuilderPage = () => {
   const [data, setData] = useState<ParsedData | null>(null);
