@@ -17,6 +17,8 @@ import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
 import { useDashboard } from "@/contexts/DashboardContext";
 
 const ChartBuilderPage = () => {
+  const navigate = useNavigate();
+  const { addPanel, dashboard } = useDashboard();
   const [data, setData] = useState<ParsedData | null>(null);
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [mapping, setMapping] = useState<AxisMapping>({ x: "", y: "", group: "__none__" });
