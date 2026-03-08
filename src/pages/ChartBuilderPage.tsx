@@ -12,6 +12,7 @@ import ColorThemePicker from "@/components/ColorThemePicker";
 import ChartPreview, { type Annotation } from "@/components/ChartPreview";
 import ChartSettings, { DEFAULT_CHART_SETTINGS, type ChartSettingsState } from "@/components/ChartSettings";
 import AISuggestPanel from "@/components/AISuggestPanel";
+import ExportMenu from "@/components/ExportMenu";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
 import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
 import { useDashboard } from "@/contexts/DashboardContext";
