@@ -367,7 +367,7 @@ const ChartPreview = forwardRef<HTMLDivElement, Props>(({
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
+    <div ref={ref} className="rounded-xl border border-border bg-card p-6">
       {title && (
         <h2 className="mb-4 text-center font-display text-lg font-bold text-foreground">{title}</h2>
       )}
