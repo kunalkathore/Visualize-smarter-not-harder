@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,9 @@ import AxisMapper, { type AxisMapping } from "@/components/AxisMapper";
 import ColorThemePicker from "@/components/ColorThemePicker";
 import ChartPreview, { type Annotation } from "@/components/ChartPreview";
 import ChartSettings, { DEFAULT_CHART_SETTINGS, type ChartSettingsState } from "@/components/ChartSettings";
+import AISuggestPanel from "@/components/AISuggestPanel";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
+import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
 
 const ChartBuilderPage = () => {
   const [data, setData] = useState<ParsedData | null>(null);
