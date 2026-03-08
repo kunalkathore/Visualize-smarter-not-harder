@@ -37,6 +37,11 @@ const HeroSection = () => {
               Upload & Preview
             </Button>
           </Link>
+          <Link to="/auth">
+            <Button size="lg" variant="ghost" className="font-display text-base px-8">
+              Sign In
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

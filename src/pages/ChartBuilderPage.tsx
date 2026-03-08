@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback, useRef } from "react";
-import { ArrowLeft, LayoutDashboard } from "lucide-react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import { ArrowLeft, LayoutDashboard, Save, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import FileUploadZone from "@/components/FileUploadZone";
 import DatasetSummaryBar from "@/components/DatasetSummaryBar";
@@ -16,11 +16,17 @@ import ExportMenu from "@/components/ExportMenu";
 import { getColumnInfos, type ParsedData } from "@/lib/dataUtils";
 import { suggestCharts, type ChartSuggestion } from "@/lib/chartSuggestions";
 import { useDashboard } from "@/contexts/DashboardContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const ChartBuilderPage = () => {
   const navigate = useNavigate();
   const { addPanel, dashboard } = useDashboard();
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const chartRef = useRef<HTMLDivElement>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [data, setData] = useState<ParsedData | null>(null);
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [mapping, setMapping] = useState<AxisMapping>({ x: "", y: "", group: "__none__" });
@@ -30,6 +36,31 @@ const ChartBuilderPage = () => {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [suggestions, setSuggestions] = useState<ChartSuggestion[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
+
+  // Load project from URL param
+  useEffect(() => {
+    const pid = searchParams.get("project");
+    if (!pid || !user) return;
+    (async () => {
+      const { data: proj, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", pid)
+        .single();
+      if (error || !proj) return;
+      setProjectId(proj.id);
+      const d = proj.data as any;
+      if (d.parsedData) {
+        setData(d.parsedData);
+        if (d.chartType) setChartType(d.chartType);
+        if (d.mapping) setMapping(d.mapping);
+        if (d.themeIndex != null) setThemeIndex(d.themeIndex);
+        if (d.title) setTitle(d.title);
+        if (d.settings) setSettings(d.settings);
+        if (d.annotations) setAnnotations(d.annotations);
+      }
+    })();
+  }, [searchParams, user]);
 
   const columns = useMemo(() => (data ? getColumnInfos(data) : []), [data]);
 
@@ -82,6 +113,57 @@ const ChartBuilderPage = () => {
     });
   }, [data, title, chartType, mapping, themeIndex, settings, annotations, addPanel, navigate]);
 
+  const handleSaveProject = useCallback(async () => {
+    if (!data || !user) {
+      if (!user) {
+        toast.error("Sign in to save projects", {
+          action: { label: "Sign In", onClick: () => navigate("/auth") },
+        });
+      }
+      return;
+    }
+    setSaving(true);
+    const projectData = {
+      parsedData: data,
+      chartType,
+      mapping,
+      themeIndex,
+      title,
+      settings,
+      annotations,
+    };
+
+    if (projectId) {
+      const { error } = await supabase
+        .from("projects")
+        .update({
+          name: title || "Untitled Project",
+          data: projectData as any,
+          chart_count: dashboard.panels.length + 1,
+        })
+        .eq("id", projectId);
+      if (error) toast.error("Failed to save");
+      else toast.success("Project saved!");
+    } else {
+      const { data: newProj, error } = await supabase
+        .from("projects")
+        .insert({
+          user_id: user.id,
+          name: title || "Untitled Project",
+          data: projectData as any,
+          chart_count: 1,
+        })
+        .select("id")
+        .single();
+      if (error) toast.error("Failed to save");
+      else {
+        setProjectId(newProj.id);
+        toast.success("Project saved!");
+      }
+    }
+    setSaving(false);
+  }, [data, user, projectId, chartType, mapping, themeIndex, title, settings, annotations, dashboard.panels.length, navigate]);
+
   return (
     <div className="min-h-screen bg-background font-body">
       <header className="border-b border-border bg-card">
@@ -93,12 +175,37 @@ const ChartBuilderPage = () => {
           </Link>
           <h1 className="font-display text-lg font-bold text-foreground">Chart Builder</h1>
           <div className="ml-auto flex items-center gap-2">
+            {user && (
+              <Link to="/projects">
+                <Button variant="ghost" size="sm" className="gap-2 text-xs font-display">
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  My Projects
+                </Button>
+              </Link>
+            )}
+            {data && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-2 text-xs"
+                onClick={handleSaveProject}
+                disabled={saving}
+              >
+                <Save className="h-3.5 w-3.5" />
+                {saving ? "Saving…" : "Save Project"}
+              </Button>
+            )}
             {dashboard.panels.length > 0 && (
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm" className="gap-2 text-xs font-display">
                   <LayoutDashboard className="h-3.5 w-3.5" />
                   Dashboard ({dashboard.panels.length})
                 </Button>
+              </Link>
+            )}
+            {!user && (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="text-xs">Sign In</Button>
               </Link>
             )}
           </div>
